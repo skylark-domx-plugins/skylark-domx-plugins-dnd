@@ -6,7 +6,7 @@ define([
     "skylark-domx-geom",
     "skylark-domx-eventer",
     "skylark-domx-styler",
-    "skylark-domx-plugins",
+    "skylark-domx-plugins-base",
     "./dnd",
     "./manager"
 ], function(langx, noder, datax, finder, geom, eventer, styler, plugins, dnd,manager) {

@@ -393,14 +393,21 @@ define([
                 left: offset.left - parentOffset.left - pbex.left - mex.left
             }
         } else {
+            var // Get *real* offsetParent
+                parent = offsetParent(elm);
+
             var props = {
-                top: coords.top,
-                left: coords.left
+                top: coords.top + (scrollTop(parent) || 0),
+                left: coords.left + (scrollLeft(parent) || 0)
             }
+
+
 
             if (styler.css(elm, "position") == "static") {
                 props['position'] = "relative";
             }
+
+
             styler.css(elm, props);
             return this;
         }
@@ -485,6 +492,8 @@ define([
     function scrollLeft(elm, value) {
         if (elm.nodeType === 9) {
             elm = elm.defaultView;
+        } else if (elm == document.body) {
+            elm = document.scrollingElement  || document.documentElement;
         }
         var hasScrollLeft = "scrollLeft" in elm;
         if (value === undefined) {
@@ -506,7 +515,10 @@ define([
     function scrollTop(elm, value) {
         if (elm.nodeType === 9) {
             elm = elm.defaultView;
+        } else if (elm == document.body) {
+            elm = document.scrollingElement  || document.documentElement;
         }
+
         var hasScrollTop = "scrollTop" in elm;
 
         if (value === undefined) {
