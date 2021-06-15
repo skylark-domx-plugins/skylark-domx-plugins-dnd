@@ -1,7 +1,7 @@
 {
-  "name": "skylark-domx-plugins-interact",
+  "name": "skylark-domx-plugins-dnd",
   "version": "0.9.0",
-  "description": "The interact features enhancement for dom.",
+  "description": "The dnd features enhancement for dom.",
   "main": "-",
   "scripts": {
     "build": "slib build .",
@@ -10,7 +10,7 @@
   "homepage": "www.skylarkjs.org",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/skylark-domx-plugins/skylark-domx-plugins-interact.git"
+    "url": "git+https://github.com/skylark-domx-plugins/skylark-domx-plugins-dnd.git"
   },
   "keywords": [
     "skylark",

@@ -1,5 +1,5 @@
 /**
- * skylark-domx-plugins-interact - The interact features enhancement for dom.
+ * skylark-domx-plugins-dnd - The dnd features enhancement for dom.
  * @author Hudaokeji Co.,Ltd
  * @version v0.9.0
  * @link www.skylarkjs.org
@@ -86,7 +86,7 @@
 
 })(function(define,require) {
 
-define('skylark-domx-plugins-interact/dnd',[
+define('skylark-domx-plugins-dnd/dnd',[
     "skylark-langx/skylark",
 ], function(skylark) {
 
@@ -94,7 +94,7 @@ define('skylark-domx-plugins-interact/dnd',[
 });
 
 
-define('skylark-domx-plugins-interact/manager',[
+define('skylark-domx-plugins-dnd/manager',[
     "./dnd",
     "skylark-langx/langx",
     "skylark-domx-noder",
@@ -210,7 +210,7 @@ define('skylark-domx-plugins-interact/manager',[
 
     return manager;
 });
-define('skylark-domx-plugins-interact/Draggable',[
+define('skylark-domx-plugins-dnd/Draggable',[
     "skylark-langx/langx",
     "skylark-domx-noder",
     "skylark-domx-data",
@@ -308,7 +308,7 @@ define('skylark-domx-plugins-interact/Draggable',[
 
     return dnd.Draggable = Draggable;
 });
-define('skylark-domx-plugins-interact/Droppable',[
+define('skylark-domx-plugins-dnd/Droppable',[
     "skylark-langx/langx",
     "skylark-domx-noder",
     "skylark-domx-data",
@@ -479,7 +479,7 @@ define('skylark-domx-plugins-interact/Droppable',[
 
     return dnd.Droppable = Droppable;
 });
-define('skylark-domx-plugins-interact/main',[
+define('skylark-domx-plugins-dnd/main',[
     "./dnd",
     "./Draggable",
     "./Droppable"
@@ -487,8 +487,8 @@ define('skylark-domx-plugins-interact/main',[
     return dnd;
 })
 ;
-define('skylark-domx-plugins-interact', ['skylark-domx-plugins-interact/main'], function (main) { return main; });
+define('skylark-domx-plugins-dnd', ['skylark-domx-plugins-dnd/main'], function (main) { return main; });
 
 
 },this);
-//# sourceMappingURL=sourcemaps/skylark-domx-plugins-interact.js.map
+//# sourceMappingURL=sourcemaps/skylark-domx-plugins-dnd.js.map
