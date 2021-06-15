@@ -101,7 +101,8 @@ define('skylark-langx-ns/_attach',[],function(){
             name = path[i++];
         }
 
-        return ns[name] = obj2;
+        ns[name] = obj2 || {};
+        return ns[name];
     }
 });
 define('skylark-langx-ns/ns',[
@@ -1180,6 +1181,10 @@ define('skylark-langx-arrays/arrays',[
         return -1;
     }
 
+    function indexOf(array,item) {
+      return array.indexOf(item);
+    }
+
     function makeArray(obj, offset, startWith) {
        if (isArrayLike(obj) ) {
         return (startWith || []).concat(Array.prototype.slice.call(obj, offset || 0));
@@ -1193,6 +1198,10 @@ define('skylark-langx-arrays/arrays',[
     function forEach (arr, fn) {
       if (arr.forEach) return arr.forEach(fn)
       for (var i = 0; i < arr.length; i++) fn(arr[i], i);
+    }
+
+    function last(arr) {
+        return arr[arr.length - 1];     
     }
 
     function map(elements, callback) {
@@ -1271,9 +1280,13 @@ define('skylark-langx-arrays/arrays',[
 
         inArray: inArray,
 
+        indexOf : indexOf,
+
         makeArray: makeArray, // 
 
         toArray : makeArray,
+
+        last : last,
 
         merge : merge,
 
@@ -2116,31 +2129,55 @@ define('skylark-langx-funcs/funcs',[
     });
 });
 define('skylark-langx-funcs/defer',[
+    "skylark-langx-types",
     "./funcs"
-],function(funcs){
-    function defer(fn,args,context) {
+],function(types,funcs){
+
+    function defer(fn,trigger,args,context) {
         var ret = {
-            stop : null
+            cancel : null
         },
-        id,
         fn1 = fn;
+
+        if (!types.isNumber(trigger) && !types.isFunction(trigger)) {
+            context = args;
+            args = trigger;
+            trigger = 0;
+        }
 
         if (args) {
             fn1 = function() {
                 fn.apply(context,args);
             };
         }
-        if (requestAnimationFrame) {
-            id = requestAnimationFrame(fn1);
-            ret.stop = function() {
-                return cancelAnimationFrame(id);
-            };
+
+        if (types.isFunction(trigger)) {
+            var canceled = false;
+            trigger(function(){
+                if (!canceled) {
+                    fn1();
+                }
+            });
+
+            ret.cancel = function() {
+                canceled = true;
+            }
+
         } else {
-            id = setTimeoutout(fn1);
-            ret.stop = function() {
-                return clearTimeout(id);
-            };
+            var  id;
+            if (trigger == 0 && requestAnimationFrame) {
+                id = requestAnimationFrame(fn1);
+                ret.cancel = function() {
+                    return cancelAnimationFrame(id);
+                };
+            } else {
+                id = setTimeout(fn1,trigger);
+                ret.cancel = function() {
+                    return clearTimeout(id);
+                };
+            }            
         }
+
         return ret;
     }
 
@@ -2153,37 +2190,37 @@ define('skylark-langx-funcs/debounce',[
    
     function debounce(fn, wait,useAnimationFrame) {
         var timeout,
-            defered;
+            defered,
+            debounced = function () {
+                var context = this, args = arguments;
+                var later = function () {
+                    timeout = null;
+                    if (useAnimationFrame) {
+                        defered = defer(fn,args,context);
+                    } else {
+                        fn.apply(context, args);
+                    }
+                };
 
-        return function () {
-            var context = this, args = arguments;
-            var later = function () {
-                timeout = null;
-                if (useAnimationFrame) {
-                    defered = defer(fn,args,context);
-                } else {
-                    fn.apply(context, args);
-                }
-            };
+                cancel();
+                timeout = setTimeout(later, wait);
 
-            function stop() {
+                return {
+                    cancel 
+                };
+            },
+            cancel = debounced.cancel = function () {
                 if (timeout) {
                     clearTimeout(timeout);
                 }
                 if (defered) {
-                    defered.stop();
+                    defered.cancel();
                 }
                 timeout = void 0;
                 defered = void 0;
-            }
-
-            stop();
-            timeout = setTimeout(later, wait);
-
-            return {
-                stop 
             };
-        };
+
+        return debounced;
     }
 
     return funcs.debounce = debounce;
@@ -3625,13 +3662,15 @@ define('skylark-langx-events/Emitter',[
                     if (ns && (!listener.ns ||  !listener.ns.startsWith(ns))) {
                         continue;
                     }
-                    if (e.data) {
-                        if (listener.data) {
-                            e.data = mixin({}, listener.data, e.data);
-                        }
-                    } else {
-                        e.data = listener.data || null;
+
+                    if (listener.data) {
+                        e.data = mixin({}, listener.data, e.data);
                     }
+                    if (args.length == 2 && isPlainObject(args[1])) {
+                        e.data = e.data || {};
+                        mixin(e.data,args[1]);
+                    }
+
                     listener.fn.apply(listener.ctx, args);
                     if (listener.one) {
                         listeners[i] = null;
@@ -15125,6 +15164,24 @@ define('skylark-domx-geom/geom',[
         }
     }
 
+
+
+    function inview(elm, cushion) {
+        function calibrate(coords, cushion) {
+            var o = {};
+            cushion = +cushion || 0;
+            o.width = (o.right = coords.right + cushion) - (o.left = coords.left - cushion);
+            o.height = (o.bottom = coords.bottom + cushion) - (o.top = coords.top - cushion);
+            return o;
+        }
+
+        var r = calibrate(boundingRect(elm), cushion),
+            vsize = viewportSize();
+
+        return !!r && r.bottom >= 0 && r.right >= 0 && r.top <= vsize.height && r.left <= vsize.width;
+    }
+
+
     /*
      * Get the widths of each margin of the specified element.
      * @param {HTMLElement} elm
@@ -15271,10 +15328,17 @@ define('skylark-domx-geom/geom',[
                 parent = offsetParent(elm);
 
             var props = {
-                top: coords.top + (scrollTop(parent) || 0),
-                left: coords.left + (scrollLeft(parent) || 0)
+                top: coords.top,
+                left: coords.left
+            };
+
+            if (langx.isDefined(props.top)) {
+                props.top = props.top + (scrollTop(parent) || 0);
             }
 
+            if (langx.isDefined(props.left)) {
+                props.left = props.left + (scrollLeft(parent) || 0);
+            } 
 
 
             if (styler.css(elm, "position") == "static") {
@@ -15456,6 +15520,14 @@ define('skylark-domx-geom/geom',[
             return this;
         }
     }
+
+
+    function viewportSize(win) {
+        win = win || window;
+
+        return boundingRect(win);
+    }
+
     /*
      * Get or set the size of the specified element border box.
      * @param {HTMLElement} elm
@@ -15535,6 +15607,8 @@ define('skylark-domx-geom/geom',[
 
         height: height,
 
+        inview,
+
         marginExtents: marginExtents,
 
         marginRect: marginRect,
@@ -15568,6 +15642,8 @@ define('skylark-domx-geom/geom',[
         size: size,
 
         testAxis,
+
+        viewportSize,
 
         width: width
     });
@@ -16600,6 +16676,23 @@ define('skylark-domx-eventer/eventer',[
         return this;
     }
 
+    var focusedQueue = [],
+        focuser = langx.loop(function(){
+            for (var i = 0; i<focusedQueue.length; i++) {
+                trigger(focusedQueue[i],"focused");
+            }
+            focusedQueue = [];
+        });
+
+    focuser.start();
+
+
+    function focused(elm) {
+        if (!focusedQueue.includes(elm)) {
+            focusedQueue.push(elm)
+        }
+    }
+
     /*   
      * Remove an event handler for one or more events from the specified element.
      * @param {HTMLElement} elm  
@@ -16790,11 +16883,11 @@ define('skylark-domx-eventer/eventer',[
 
 
     function resized(elm) {
-        if (!resizedQueue.contains(elm)) {
+        if (!resizedQueue.includes(elm)) {
             resizedQueue.push(elm)
         }
-
     }
+
 
     var keyCodeLookup = {
         "backspace": 8,
@@ -16914,6 +17007,8 @@ define('skylark-domx-eventer/eventer',[
         clear,
         
         create: createEvent,
+
+        focused,
 
         keys: keyCodeLookup,
 
