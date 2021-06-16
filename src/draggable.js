@@ -23,7 +23,7 @@ define([
     var Draggable = plugins.Plugin.inherit({
         klassName: "Draggable",
         
-        pluginName : "lark.draggable",
+        pluginName : "lark.dnd.draggable",
 
         options : {
             draggingClass : "dragging"

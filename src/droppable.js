@@ -22,7 +22,7 @@ define([
     var Droppable = plugins.Plugin.inherit({
         klassName: "Droppable",
 
-        pluginName : "lark.droppable",
+        pluginName : "lark.dnd.droppable",
 
         options : {
             draggingClass : "dragging"

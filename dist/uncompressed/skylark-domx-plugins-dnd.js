@@ -235,7 +235,7 @@ define('skylark-domx-plugins-dnd/Draggable',[
     var Draggable = plugins.Plugin.inherit({
         klassName: "Draggable",
         
-        pluginName : "lark.draggable",
+        pluginName : "lark.dnd.draggable",
 
         options : {
             draggingClass : "dragging"
@@ -332,7 +332,7 @@ define('skylark-domx-plugins-dnd/Droppable',[
     var Droppable = plugins.Plugin.inherit({
         klassName: "Droppable",
 
-        pluginName : "lark.droppable",
+        pluginName : "lark.dnd.droppable",
 
         options : {
             draggingClass : "dragging"
