@@ -1,7 +1,7 @@
 define([
-    "skylark-langx/skylark",
-], function(skylark) {
+    "skylark-domx-plugins-base/plugins"
+], function(plugins) {
 
-	return skylark.attach("domx.plugins.dnd",{});
+	return plugins.dnd = {};
 });
 

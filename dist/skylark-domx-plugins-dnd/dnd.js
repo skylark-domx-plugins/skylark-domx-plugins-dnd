@@ -5,5 +5,5 @@
  * @link www.skylarkjs.org
  * @license MIT
  */
-define(["skylark-langx/skylark"],function(n){return n.attach("domx.plugins.dnd",{})});
+define(["skylark-domx-plugins-base/plugins"],function(n){return n.dnd={}});
 //# sourceMappingURL=sourcemaps/dnd.js.map

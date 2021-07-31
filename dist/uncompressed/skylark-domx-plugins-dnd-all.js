@@ -123,19 +123,33 @@ define('skylark-langx-ns/main',[
 });
 define('skylark-langx-ns', ['skylark-langx-ns/main'], function (main) { return main; });
 
+define('skylark-domx-plugins-base/plugins',[
+    "skylark-langx-ns"
+], function(skylark) {
+    "use strict";
+
+    var pluginKlasses = {},
+        shortcuts = {};
+
+
+    return  skylark.attach("domx.plugins",{
+        pluginKlasses,
+        shortcuts
+    });
+});
+define('skylark-domx-plugins-dnd/dnd',[
+    "skylark-domx-plugins-base/plugins"
+], function(plugins) {
+
+	return plugins.dnd = {};
+});
+
+
 define('skylark-langx/skylark',[
     "skylark-langx-ns"
 ], function(ns) {
 	return ns;
 });
-
-define('skylark-domx-plugins-dnd/dnd',[
-    "skylark-langx/skylark",
-], function(skylark) {
-
-	return skylark.attach("domx.plugins.dnd",{});
-});
-
 
 define('skylark-langx-types/types',[
     "skylark-langx-ns"
@@ -17377,20 +17391,6 @@ define('skylark-domx-eventer/main',[
 });
 define('skylark-domx-eventer', ['skylark-domx-eventer/main'], function (main) { return main; });
 
-define('skylark-domx-plugins-base/plugins',[
-    "skylark-langx-ns"
-], function(skylark) {
-    "use strict";
-
-    var pluginKlasses = {},
-        shortcuts = {};
-
-
-    return  skylark.attach("domx.plugins",{
-        pluginKlasses,
-        shortcuts
-    });
-});
 define('skylark-domx-fx/fx',[
     "skylark-langx/skylark",
     "skylark-langx/langx"
