@@ -24,6 +24,8 @@
   "license": "MIT",
   "bugs": "https://github.com/skylarkjs/skylark/issues",
   "dependencies": {
+    "skylark-domx-plugins-scrolls": "git+https://github.com/skylark-domx-plugins/skylark-domx-plugins-scrolls.git",
+    "skylark-devices-points": "git+https://github.com/skylark-devices/skylark-devices-points.git",
     "skylark-domx-data": "git+https://github.com/skylark-domx/skylark-domx-data.git",
     "skylark-domx-eventer": "git+https://github.com/skylark-domx/skylark-domx-eventer.git",
     "skylark-domx-finder": "git+https://github.com/skylark-domx/skylark-domx-finder.git",

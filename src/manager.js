@@ -1,13 +1,15 @@
 define([
-    "./dnd",
     "skylark-langx/langx",
+    "skylark-langx-hoster/is-mobile",
     "skylark-domx-noder",
     "skylark-domx-data",
     "skylark-domx-finder",
     "skylark-domx-geom",
     "skylark-domx-eventer",
-    "skylark-domx-styler"
-], function(dnd, langx, noder, datax, finder, geom, eventer, styler) {
+    "skylark-domx-styler",
+    "./dnd",
+    "./fallback/moused-drag-drop"
+], function(langx, isMobile,noder, datax, finder, geom, eventer, styler,dnd,MousedDragDrop) {
     var on = eventer.on,
         off = eventer.off,
         attr = datax.attr,
@@ -17,6 +19,10 @@ define([
         height = geom.height;
 
 
+        // This will not pass for IE9, because IE9 DnD only works on anchors
+    var  supportDraggable = ('draggable' in document.createElement('div')) && !isMobile.apple.device; //TODO move to xxx
+
+
     var Manager = dnd.Manager = langx.Evented.inherit({
         klassName: "Manager",
 
@@ -24,16 +30,41 @@ define([
 
         },
 
-        prepare: function(draggable) {
+        prepare: function(draggable,e) {
             var e = eventer.create("preparing", {
                 dragSource: draggable.dragSource,
                 dragHandle: draggable.dragHandle
             });
             draggable.trigger(e);
             draggable.dragSource = e.dragSource;
+
+            this.useNativeDnd =  draggable.options.forceFallback ? false : supportDraggable;  
+            this.dragging = draggable;
+
+            if (draggable.dragSource) {
+                datax.data(draggable.dragSource, "draggable", true);
+                if (this.useNativeDnd) {
+                    datax.attr(draggable.dragSource, "draggable", 'true');
+                } else {
+                    this._fallbacker = new MousedDragDrop(this,draggable.dragSource,draggable.startPos);
+                }
+
+                try {
+                    if (document.selection) {
+                       document.selection.empty();
+                    } else {
+                        window.getSelection().removeAllRanges();
+                    }
+                } catch (err) {
+                }
+            }
         },
 
         start: function(draggable, event) {
+            datax.data(draggable.dragSource, "draggable", false);
+            if (this.useNativeDnd) {
+                datax.attr(draggable.dragSource, "draggable", 'false');
+            }
 
             var p = geom.pagePosition(draggable.dragSource);
             this.draggingOffsetX = parseInt(event.pageX - p.left);

@@ -6,10 +6,11 @@ define([
     "skylark-domx-geom",
     "skylark-domx-eventer",
     "skylark-domx-styler",
+    "skylark-devices-points/touch",
     "skylark-domx-plugins-base",
     "./dnd",
     "./manager"
-], function(langx, noder, datax, finder, geom, eventer, styler, plugins, dnd,manager) {
+], function(langx, noder, datax, finder, geom, eventer, styler, touch, plugins, dnd,manager) {
     var on = eventer.on,
         off = eventer.off,
         attr = datax.attr,
@@ -26,7 +27,8 @@ define([
         pluginName : "lark.dnd.draggable",
 
         options : {
-            draggingClass : "dragging"
+            draggingClass : "dragging",
+            forceFallback : false
         },
 
         _construct: function(elm, options) {
@@ -43,6 +45,7 @@ define([
                 }
             });
 
+            touch.mousy(elm);
 
             eventer.on(elm, {
                 "mousedown": function(e) {
@@ -58,22 +61,25 @@ define([
                     } else {
                         self.dragSource = self._elm;
                     }
-                    manager.prepare(self);
-                    if (self.dragSource) {
-                        datax.attr(self.dragSource, "draggable", 'true');
-                    }
+
+                    self.startPos = {
+                        x : e.clientX,
+                        y : e.clientY
+                    };
+
+                    manager.prepare(self,e);
+
                 },
 
                 "mouseup": function(e) {
-                    if (self.dragSource) {
-                        //datax.attr(self.dragSource, "draggable", 'false');
-                        self.dragSource = null;
-                        self.dragHandle = null;
-                    }
+                    ///if (self.dragSource) {
+                    ///    //datax.attr(self.dragSource, "draggable", 'false');
+                    ///    self.dragSource = null;
+                    ///    self.dragHandle = null;
+                    ///}
                 },
 
                 "dragstart": function(e) {
-                    datax.attr(self.dragSource, "draggable", 'false');
                     manager.start(self, e);
                 },
 
