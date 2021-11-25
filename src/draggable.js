@@ -51,13 +51,13 @@ define([
                 "mousedown": function(e) {
                     var options = self.options;
                     if (options.handle) {
-                        self.dragHandle = finder.closest(e.target, options.handle);
+                        self.dragHandle = finder.closest(e.target, options.handle,self._elm);
                         if (!self.dragHandle) {
                             return;
                         }
                     }
                     if (options.source) {
-                        self.dragSource = finder.closest(e.target, options.source);
+                        self.dragSource = finder.closest(e.target, options.source,self._elm);
                     } else {
                         self.dragSource = self._elm;
                     }

@@ -22630,10 +22630,11 @@ define('skylark-domx-plugins-dnd/manager',[
 
         },
 
-        prepare: function(draggable,e) {
+        prepare: function(draggable,event) {
             var e = eventer.create("preparing", {
                 dragSource: draggable.dragSource,
-                dragHandle: draggable.dragHandle
+                dragHandle: draggable.dragHandle,
+                originalEvent : event
             });
             draggable.trigger(e);
             draggable.dragSource = e.dragSource;
@@ -22676,6 +22677,8 @@ define('skylark-domx-plugins-dnd/manager',[
                 dragHandle: draggable.dragHandle,
                 ghost: null,
 
+                originalEvent : event,
+
                 transfer: {}
             });
 
@@ -22690,7 +22693,7 @@ define('skylark-domx-plugins-dnd/manager',[
 
             this.draggingGhost = e.ghost;
             if (!this.draggingGhost) {
-                this.draggingGhost = draggable.elm;
+                this.draggingGhost = draggable.dragSource;
             }
 
             this.draggingTransfer = e.transfer;
@@ -22703,7 +22706,7 @@ define('skylark-domx-plugins-dnd/manager',[
 
             event.dataTransfer.setDragImage(this.draggingGhost, this.draggingOffsetX, this.draggingOffsetY);
 
-            event.dataTransfer.effectAllowed = "copyMove";
+            ///event.dataTransfer.effectAllowed = "copyMove";
 
             var e1 = eventer.create("dndStarted", {
                 elm: e.elm,
@@ -22727,6 +22730,13 @@ define('skylark-domx-plugins-dnd/manager',[
                     styler.removeClass(dragging.dragSource, dragging.draggingClass);
                 }
             }
+
+            var e2 = eventer.create("ended", {
+                originalEvent : e
+            });
+
+            this.dragging.trigger(e2);
+
 
             var e = eventer.create("dndEnded", {});
             this.trigger(e);
@@ -22798,13 +22808,13 @@ define('skylark-domx-plugins-dnd/Draggable',[
                 "mousedown": function(e) {
                     var options = self.options;
                     if (options.handle) {
-                        self.dragHandle = finder.closest(e.target, options.handle);
+                        self.dragHandle = finder.closest(e.target, options.handle,self._elm);
                         if (!self.dragHandle) {
                             return;
                         }
                     }
                     if (options.source) {
-                        self.dragSource = finder.closest(e.target, options.source);
+                        self.dragSource = finder.closest(e.target, options.source,self._elm);
                     } else {
                         self.dragSource = self._elm;
                     }
@@ -22904,6 +22914,7 @@ define('skylark-domx-plugins-dnd/Droppable',[
                     }
 
                     var e2 = eventer.create("overing", {
+                        originalEvent : e,
                         overElm: e.target,
                         transfer: manager.draggingTransfer,
                         acceptable: true
@@ -22913,7 +22924,7 @@ define('skylark-domx-plugins-dnd/Droppable',[
                     if (e2.acceptable) {
                         e.preventDefault() // allow drop
 
-                        e.dataTransfer.dropEffect = "copyMove";
+                        ///e.dataTransfer.dropEffect = "copyMove";
                     }
 
                 },
@@ -22923,6 +22934,7 @@ define('skylark-domx-plugins-dnd/Droppable',[
                         elm = self._elm;
 
                     var e2 = eventer.create("entered", {
+                        originalEvent : e,
                         transfer: manager.draggingTransfer
                     });
 
@@ -22941,6 +22953,7 @@ define('skylark-domx-plugins-dnd/Droppable',[
                     if (!acceptable) return false
 
                     var e2 = eventer.create("leaved", {
+                        originalEvent : e,
                         transfer: manager.draggingTransfer
                     });
 
@@ -22968,6 +22981,7 @@ define('skylark-domx-plugins-dnd/Droppable',[
                     }
 
                     var e2 = eventer.create("dropped", {
+                        originalEvent : e,
                         transfer: manager.draggingTransfer
                     });
 

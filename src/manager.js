@@ -30,10 +30,11 @@ define([
 
         },
 
-        prepare: function(draggable,e) {
+        prepare: function(draggable,event) {
             var e = eventer.create("preparing", {
                 dragSource: draggable.dragSource,
-                dragHandle: draggable.dragHandle
+                dragHandle: draggable.dragHandle,
+                originalEvent : event
             });
             draggable.trigger(e);
             draggable.dragSource = e.dragSource;
@@ -76,6 +77,8 @@ define([
                 dragHandle: draggable.dragHandle,
                 ghost: null,
 
+                originalEvent : event,
+
                 transfer: {}
             });
 
@@ -90,7 +93,7 @@ define([
 
             this.draggingGhost = e.ghost;
             if (!this.draggingGhost) {
-                this.draggingGhost = draggable.elm;
+                this.draggingGhost = draggable.dragSource;
             }
 
             this.draggingTransfer = e.transfer;
@@ -103,7 +106,7 @@ define([
 
             event.dataTransfer.setDragImage(this.draggingGhost, this.draggingOffsetX, this.draggingOffsetY);
 
-            event.dataTransfer.effectAllowed = "copyMove";
+            ///event.dataTransfer.effectAllowed = "copyMove";
 
             var e1 = eventer.create("dndStarted", {
                 elm: e.elm,
@@ -127,6 +130,13 @@ define([
                     styler.removeClass(dragging.dragSource, dragging.draggingClass);
                 }
             }
+
+            var e2 = eventer.create("ended", {
+                originalEvent : e
+            });
+
+            this.dragging.trigger(e2);
+
 
             var e = eventer.create("dndEnded", {});
             this.trigger(e);

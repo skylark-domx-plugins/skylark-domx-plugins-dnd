@@ -53,6 +53,7 @@ define([
                     }
 
                     var e2 = eventer.create("overing", {
+                        originalEvent : e,
                         overElm: e.target,
                         transfer: manager.draggingTransfer,
                         acceptable: true
@@ -62,7 +63,7 @@ define([
                     if (e2.acceptable) {
                         e.preventDefault() // allow drop
 
-                        e.dataTransfer.dropEffect = "copyMove";
+                        ///e.dataTransfer.dropEffect = "copyMove";
                     }
 
                 },
@@ -72,6 +73,7 @@ define([
                         elm = self._elm;
 
                     var e2 = eventer.create("entered", {
+                        originalEvent : e,
                         transfer: manager.draggingTransfer
                     });
 
@@ -90,6 +92,7 @@ define([
                     if (!acceptable) return false
 
                     var e2 = eventer.create("leaved", {
+                        originalEvent : e,
                         transfer: manager.draggingTransfer
                     });
 
@@ -117,6 +120,7 @@ define([
                     }
 
                     var e2 = eventer.create("dropped", {
+                        originalEvent : e,
                         transfer: manager.draggingTransfer
                     });
 
