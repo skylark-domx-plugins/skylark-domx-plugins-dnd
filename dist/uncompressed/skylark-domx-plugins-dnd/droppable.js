@@ -133,7 +133,8 @@ define([
             manager.on("dndStarted", function(e) {
                 var e2 = eventer.create("started", {
                     transfer: manager.draggingTransfer,
-                    acceptable: false
+                    acceptable: false,
+                    dragging : e.dragging 
                 });
 
                 self.trigger(e2);

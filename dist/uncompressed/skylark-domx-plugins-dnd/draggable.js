@@ -51,13 +51,21 @@ define([
                 "mousedown": function(e) {
                     var options = self.options;
                     if (options.handle) {
-                        self.dragHandle = finder.closest(e.target, options.handle,self._elm);
+                        if (langx.isFunction(options.handle)) {
+                            self.dragHandle = options.handle(e.target,self._elm);
+                        } else {
+                            self.dragHandle = finder.closest(e.target, options.handle,self._elm);
+                        }
                         if (!self.dragHandle) {
                             return;
                         }
                     }
                     if (options.source) {
-                        self.dragSource = finder.closest(e.target, options.source,self._elm);
+                        if (langx.isFunction(options.source)) {
+                            self.dragSource =  options.source(e.target, self._elm);                            
+                        } else {
+                            self.dragSource = finder.closest(e.target, options.source,self._elm);                            
+                        }
                     } else {
                         self.dragSource = self._elm;
                     }
@@ -80,10 +88,16 @@ define([
                 },
 
                 "dragstart": function(e) {
+                    if (manager.dragging !== self) {
+                        return;
+                    }
                     manager.start(self, e);
                 },
 
                 "dragend": function(e) {
+                    if (manager.dragging !== self) {
+                        return;
+                    }
                     eventer.stop(e);
 
                     if (!manager.dragging) {

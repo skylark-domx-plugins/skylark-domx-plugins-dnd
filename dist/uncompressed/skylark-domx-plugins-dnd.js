@@ -588,11 +588,13 @@ define('skylark-domx-plugins-dnd/manager',[
             });
             draggable.trigger(e);
             draggable.dragSource = e.dragSource;
+            draggable.dragHandle = e.dragHandle;
 
-            this.useNativeDnd =  draggable.options.forceFallback ? false : supportDraggable;  
-            this.dragging = draggable;
 
             if (draggable.dragSource) {
+                this.useNativeDnd =  draggable.options.forceFallback ? false : supportDraggable;  
+                this.dragging = draggable;
+
                 datax.data(draggable.dragSource, "draggable", true);
                 if (this.useNativeDnd) {
                     datax.attr(draggable.dragSource, "draggable", 'true');
@@ -663,7 +665,8 @@ define('skylark-domx-plugins-dnd/manager',[
                 dragSource: e.dragSource,
                 dragHandle: e.dragHandle,
                 ghost: e.ghost,
-                transfer: e.transfer
+                transfer: e.transfer,
+                dragging : this.dragging
             });
 
             this.trigger(e1);
@@ -758,13 +761,21 @@ define('skylark-domx-plugins-dnd/Draggable',[
                 "mousedown": function(e) {
                     var options = self.options;
                     if (options.handle) {
-                        self.dragHandle = finder.closest(e.target, options.handle,self._elm);
+                        if (langx.isFunction(options.handle)) {
+                            self.dragHandle = options.handle(e.target,self._elm);
+                        } else {
+                            self.dragHandle = finder.closest(e.target, options.handle,self._elm);
+                        }
                         if (!self.dragHandle) {
                             return;
                         }
                     }
                     if (options.source) {
-                        self.dragSource = finder.closest(e.target, options.source,self._elm);
+                        if (langx.isFunction(options.source)) {
+                            self.dragSource =  options.source(e.target, self._elm);                            
+                        } else {
+                            self.dragSource = finder.closest(e.target, options.source,self._elm);                            
+                        }
                     } else {
                         self.dragSource = self._elm;
                     }
@@ -787,10 +798,16 @@ define('skylark-domx-plugins-dnd/Draggable',[
                 },
 
                 "dragstart": function(e) {
+                    if (manager.dragging !== self) {
+                        return;
+                    }
                     manager.start(self, e);
                 },
 
                 "dragend": function(e) {
+                    if (manager.dragging !== self) {
+                        return;
+                    }
                     eventer.stop(e);
 
                     if (!manager.dragging) {
@@ -944,7 +961,8 @@ define('skylark-domx-plugins-dnd/Droppable',[
             manager.on("dndStarted", function(e) {
                 var e2 = eventer.create("started", {
                     transfer: manager.draggingTransfer,
-                    acceptable: false
+                    acceptable: false,
+                    dragging : e.dragging 
                 });
 
                 self.trigger(e2);

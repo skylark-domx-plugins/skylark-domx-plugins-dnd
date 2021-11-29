@@ -38,11 +38,13 @@ define([
             });
             draggable.trigger(e);
             draggable.dragSource = e.dragSource;
+            draggable.dragHandle = e.dragHandle;
 
-            this.useNativeDnd =  draggable.options.forceFallback ? false : supportDraggable;  
-            this.dragging = draggable;
 
             if (draggable.dragSource) {
+                this.useNativeDnd =  draggable.options.forceFallback ? false : supportDraggable;  
+                this.dragging = draggable;
+
                 datax.data(draggable.dragSource, "draggable", true);
                 if (this.useNativeDnd) {
                     datax.attr(draggable.dragSource, "draggable", 'true');
@@ -113,7 +115,8 @@ define([
                 dragSource: e.dragSource,
                 dragHandle: e.dragHandle,
                 ghost: e.ghost,
-                transfer: e.transfer
+                transfer: e.transfer,
+                dragging : this.dragging
             });
 
             this.trigger(e1);
