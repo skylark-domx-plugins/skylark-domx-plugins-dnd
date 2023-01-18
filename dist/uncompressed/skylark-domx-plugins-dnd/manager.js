@@ -74,7 +74,7 @@ define([
             this.draggingOffsetY = parseInt(event.pageY - p.top)
 
             var e = eventer.create("started", {
-                elm: draggable.elm,
+                elm: draggable.elm(),
                 dragSource: draggable.dragSource,
                 dragHandle: draggable.dragHandle,
                 ghost: null,
